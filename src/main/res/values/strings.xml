@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Magneto</string>
+
+    <string name="about_activity">关于</string>
+    <string name="title_activity_search_results">SearchResults</string>
+    <string name="title_activity_file_detail">FileDetailActivity</string>
+    <string name="title_activity_about">AboutActivity</string>
+
+    <string name="hello_world">感谢使用，这是我学习之余开发的一个小应用，可以帮助你在手机上快速查找磁力链。</string>
+    <string name="hello_world1">图标系互联网查找所得，如有侵权，联系本人，立即删除。</string>
+    <string name="hello_world2">应用地址：</string>
+    <string name="links">http://www.coolapk.com/apk/allen.com.rsstest</string>
+    <string name="title_activity_search_result_tab">SearchResultTabActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+</resources>
