@@ -2,11 +2,12 @@
 
 
     <style name="MyAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+
         <item name="android:windowActionBar">false</item>
         <item name="android:listDivider">@drawable/divider</item>
     </style>
 
-    <style name="MyAppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="MyAppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
 
     <style name="MyAppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

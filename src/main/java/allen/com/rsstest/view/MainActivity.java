@@ -2,29 +2,35 @@ package allen.com.rsstest.view;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import allen.com.rsstest.R;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements ResultFragment.OnFragmentInteractionListener{
 
-    private ImageButton searchButton = null;
-    private EditText keyWords = null;
-
+    private ListView mlistview;
+    private ArrayAdapter listArrayAdapter;
+    private String[] itemString = new String[]{"磁力搜索","电影更新"};
+    private ActionBarDrawerToggle mToggle;
+    private DrawerLayout mDrawer;
     private Toolbar toolbar;
     private long mLastTime = 0;
+    private SearchIndexFragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,36 +42,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initView(){
-
         toolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        //toolbar.setTitle("首页");
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setTitle("首页");
         getSupportActionBar().setHomeButtonEnabled(true);
 
-
-        searchButton = (ImageButton) findViewById(R.id.search_button);
-        keyWords = (EditText) findViewById(R.id.search_text);
-
+        mlistview = (ListView) findViewById(R.id.drawer_item);
+        mDrawer = (DrawerLayout) findViewById(R.id.main_drawer);
 
 
-        searchButton.setOnClickListener(this);
-
-
-        //监听回车键
-        keyWords.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mToggle = new ActionBarDrawerToggle(this,mDrawer,toolbar,R.string.draw_open,R.string.draw_close) {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEND
-                        || actionId == EditorInfo.IME_ACTION_DONE
-                        || (event != null && KeyEvent.KEYCODE_ENTER == event.getKeyCode() && KeyEvent.ACTION_DOWN == event.getAction())) {
-                    onClick(null);
-                }
-                return false;
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
             }
-        });
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+        };
+
+        mToggle.syncState();
+        //searchButton.setOnClickListener(this);
+        listArrayAdapter = new ArrayAdapter(this,R.layout.drawer_list_item,R.id.drawer_item_text,itemString);
+        mlistview.setAdapter(listArrayAdapter);
+        mlistview.setOnItemClickListener(new DrawerItemClickListener());
+
+        mDrawer.setDrawerListener(mToggle);
+
+        fragment = SearchIndexFragment.getNewInstance();
+        Log.d("Fragment","onCreateView");
+
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.replace(R.id.main_frame,fragment).commit();
+        Log.d("Fragment","onCreateView");
+        mlistview.setItemChecked(0,true);
+        getSupportActionBar().setTitle("磁力搜索");
+
+
     }
 
     @Override
@@ -104,18 +122,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    public void onClick(View v) {
+    private void itemClick(int position){
+        if (position == 0){
 
-        Intent intent = new Intent(MainActivity.this,SearchResultTabActivity.class);
-        intent.putExtra("key",keyWords.getText().toString());
+            Log.d("Fragment","onCreateView");
 
-        Log.d("intent",keyWords.getText().toString());
-        startActivity(intent);
-
-
+            FragmentManager manager = getSupportFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+            transaction.replace(R.id.main_frame,fragment).commit();
+            Log.d("Fragment","onCreateView");
+            mlistview.setItemChecked(position,true);
+            getSupportActionBar().setTitle("磁力搜索");
+            mDrawer.closeDrawer(mlistview);
+        }else if (position == 1){
+            ResultFragment fragment = ResultFragment.newInstance("",9);
+            FragmentManager manager = getSupportFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+            transaction.replace(R.id.main_frame,fragment).commit();
+            Log.d("Fragment","onCreateView");
+            mlistview.setItemChecked(position,true);
+            getSupportActionBar().setTitle("电影更新");
+            mDrawer.closeDrawer(mlistview);
+        }
     }
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+    }
+
+    private class DrawerItemClickListener implements AdapterView.OnItemClickListener{
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            itemClick(position);
+        }
+    }
 
 }
 

@@ -13,7 +13,6 @@
         android:theme="@style/MyAppTheme">
         <activity
             android:name=".view.MainActivity"
-            android:exported="true"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,12 +22,24 @@
         </activity>
         <activity
             android:name=".view.SearchResultTabActivity"
+            android:exported="false"
             android:label="@string/title_activity_search_result_tab" />
-        <activity android:name=".view.FileDetailActivity" />
+        <activity
+            android:name=".view.FileDetailActivity"
+            android:exported="false" />
         <activity
             android:name=".view.AboutActivity"
+            android:exported="false"
             android:label="@string/title_activity_about"
-            android:theme="@style/MyAppTheme"></activity>
+            android:theme="@style/MyAppTheme" />
+        <activity
+            android:name=".view.BasicActivity"
+            android:exported="false" />
+
+        <service
+            android:name=".net.NetService"
+            android:enabled="true"
+            android:exported="false"></service>
     </application>
 
 </manifest>

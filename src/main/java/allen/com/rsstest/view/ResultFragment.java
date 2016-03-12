@@ -13,9 +13,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.TextView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -26,7 +25,8 @@ import allen.com.rsstest.adapter.CustomAdapter;
 import allen.com.rsstest.model.HtmlSenderCallback;
 import allen.com.rsstest.model.RecyclerItemClickListner;
 import allen.com.rsstest.pojo.MagnetFilePojo;
-import allen.com.rsstest.util.HtmlParseUtil;
+import allen.com.rsstest.util.html.HtmlParseFactory;
+import allen.com.rsstest.util.html.HtmlParser;
 
 
 /**
@@ -40,13 +40,14 @@ import allen.com.rsstest.util.HtmlParseUtil;
 public class ResultFragment extends Fragment implements HtmlSenderCallback,RecyclerItemClickListner{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_PARAM1 = "param1";//keywords
+    private static final String ARG_PARAM2 = "param2";//position
     private static final int VERTICAL_ITEM_SPACE = 32;
 
     public static final String MAGNET_FILE = "magnet";
 
     private RecyclerView recyclerView;
+    private ProgressBar mProgress;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private int mParam2;
@@ -55,6 +56,7 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
     private List<MagnetFilePojo> itemList = new ArrayList<>();
     private OnFragmentInteractionListener mListener;
 
+    private HtmlParser htmlParser;
     private int page = 1;
 
     /**
@@ -96,6 +98,7 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_result,container,false);
 
+        mProgress = (ProgressBar) rootView.findViewById(R.id.mprogress_bar);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
         final LinearLayoutManager lmanager = new LinearLayoutManager(getActivity());
 
@@ -108,9 +111,8 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
 
         mAdapter.setOnclickListner(this);
 
-        final HtmlParseUtil htmlParseUtil = new HtmlParseUtil(mParam1,mParam2);
-        htmlParseUtil.setPage(page);
-        htmlParseUtil.excuteConnect(this,htmlParseUtil.getUrl());
+        htmlParser = HtmlParseFactory.getHtmlParser(mParam2);
+        HtmlParseFactory.excuteConnect(this,htmlParser.getUrl(mParam1,page));
 
 
         recyclerView.addItemDecoration(new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE));
@@ -130,14 +132,18 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
                 if (newState == RecyclerView.SCROLL_STATE_IDLE && (lastVisibleItem +1 == mAdapter.getItemCount())){
                     page++;
                     Log.d("Page",page+"");
-                    htmlParseUtil.setPage(page);
-                    htmlParseUtil.excuteConnect(ResultFragment.this,htmlParseUtil.getUrl());
+                    HtmlParseFactory.excuteConnect(ResultFragment.this,htmlParser.getUrl(mParam1,page));
                 }
             }
         });
 
-
+        setProgress();
         return rootView;
+    }
+
+
+    private void setProgress(){
+        recyclerView.setVisibility(View.GONE);
     }
 
     @Override
@@ -173,27 +179,15 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
 
     @Override
     public void onSuccess(String html) {
-        ArrayList<MagnetFilePojo> list = new ArrayList<>();
+        ArrayList<MagnetFilePojo> list;
         Log.d("mParam2",mParam2+"");
-        switch (mParam2){
-            case 0:
-                list = HtmlParseUtil.parseSource1(html);
-                break;
-            case 1:
-                list = HtmlParseUtil.parseSource2(html);
-                break;
-            case 2:
-                list = HtmlParseUtil.parseSource3(html);
-                break;
-            case 3:
-                list = HtmlParseUtil.parseSource4(html);
-                break;
-        }
+
+        list = htmlParser.parseSource(html);
         Log.d("itemList",list.size()+"");
         if (getActivity() == null) {
             return;
         }
-        if (list.size() == 0) {
+        if (list.size() == 0 ) {
 
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -202,6 +196,14 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
                 }
             });
 
+            if (itemList.size() == 0){
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mProgress.setVisibility(View.GONE);
+                    }
+                });
+            }
             return;
         }
         itemList.addAll(list);
@@ -210,7 +212,8 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
             @Override
             public void run() {
                 mAdapter.notifyDataSetChanged();
-
+                mProgress.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -223,6 +226,7 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                mProgress.setVisibility(View.GONE);
                 Toast.makeText(getActivity(),"网络连接失败",Toast.LENGTH_SHORT).show();
             }
         });
@@ -260,7 +264,6 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
                 startActivity(intent);
             }
         });
-
 
     }
 

@@ -5,10 +5,6 @@ package allen.com.rsstest.util;
  */
 public class NetUrls {
 
-    public final static String BT_SPREAD_TAG = "bt_fuli";
-    public final static String BT_CHERRY_TAG = "bt_cherry";
-    public final static String BT_BAOCAI_TAG = "bt_baocai";
-
     public final static String MAGNET_TITLE = "magnet:?xt=urn:btih:";
     public final static String USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.3; en-us; SM-N900T Build/JSS15J) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30";
 
@@ -34,5 +30,9 @@ public class NetUrls {
 
     public final static String SEARCH_8 = "http://torrentkitty.la/tk/";
     public final static String SEARCH_8_PAGE = "1-0.html";//page 1
+
+    public final static String MP4_INDEX = "http://www.mp4ba.com";
+    public final static String MP4_PAGE = "/index.php?page=";
+
 
 }

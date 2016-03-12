@@ -16,7 +16,7 @@ import allen.com.rsstest.pojo.MagnetFilePojo;
 /**
  * Created by Allen on 2016/2/14.
  */
-public class HtmlParseUtil {
+public class HtmlParseUtil{
     private String keywords;
     private int position;//搜索引擎源
     private int page = 1;
@@ -51,6 +51,12 @@ public class HtmlParseUtil {
                 break;
             case 3:
                 url = NetUrls.SEARCH_4 + keywords + NetUrls.SEARCH_4_PAGE + page;
+                break;
+            case 9:
+                if (page == 1){
+                    url = NetUrls.MP4_INDEX;
+                }else url = NetUrls.MP4_INDEX + NetUrls.MP4_PAGE + page;
+                break;
         }
         Log.d("URL",url);
         return url;
@@ -175,6 +181,33 @@ public class HtmlParseUtil {
         return list;
     }
 
+    public static ArrayList parseMp4ba(String html){
+        ArrayList<MagnetFilePojo> list = new ArrayList<>();
+        Document document = Jsoup.parse(html);
+        Elements elements = document.select("#data_list");
+        if (elements == null) {
+            return list;
+        }
+        elements = elements.first().children();
+        elements.select("tr#ad_list_middle").remove();
+        for (Element e: elements) {
+            Elements es = e.select("td");
+            if (es.size() > 2){
+                String url = es.get(2).select("a").attr("href");
+                String mage = url.substring(url.indexOf("=")+1);
+
+                MagnetFilePojo magnet = new MagnetFilePojo();
+                magnet.setFileName(e.child(2).text());
+                magnet.setFileUrl("http://mp4ba.com/"+url);
+                magnet.setFileSize(es.get(0).text()+"  "+es.get(3).text());
+                magnet.setFileMagnet(NetUrls.MAGNET_TITLE+mage);
+                list.add(magnet);
+            }
+
+        }
+        return list;
+    }
+
     public static ArrayList getFileFromSource1(String html){
         ArrayList<FileDetailPojo> list = new ArrayList<>();
         Document document = Jsoup.parse(html);
@@ -185,8 +218,7 @@ public class HtmlParseUtil {
         }
         for (Element e:elements) {
             Element es = e.select("span").first();
-            //Log.d("title",e.text());
-            //Log.d("size",es.text());
+
             FileDetailPojo file = new FileDetailPojo(es.text(),e.text().replace(es.text(),""));
             //Log.d("File",file.toString());
             list.add(file);
@@ -250,4 +282,19 @@ public class HtmlParseUtil {
         return list;
     }
 
+    public static ArrayList getFileFromMp4ba(String html){
+        ArrayList<FileDetailPojo> list = new ArrayList<>();
+        Document document = Jsoup.parse(html);
+        Elements elements = document.select("div.torrent_files");
+        if (elements == null) {
+            return list;
+        }
+        elements = elements.select("ul").first().select("li").first().select("li");
+        for (Element e:elements) {
+            String s = e.select("span").text();
+            FileDetailPojo file = new FileDetailPojo(s,e.text().replace("s",""));
+            list.add(file);
+        }
+        return list;
+    }
 }

@@ -11,7 +11,8 @@
     <string name="hello_world2">应用地址：</string>
     <string name="links">http://www.coolapk.com/apk/allen.com.rsstest</string>
     <string name="title_activity_search_result_tab">SearchResultTabActivity</string>
-
+    <string name="draw_open">Open navigation drawer</string>
+    <string name="draw_close">Close navigation drawer</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
