@@ -1,11 +1,17 @@
 <resources>
 
 
-    <style name="MyAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="MyAppTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
 
         <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
         <item name="android:listDivider">@drawable/divider</item>
     </style>
+
+    <style name="MyActionBar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
 
     <style name="MyAppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
 

@@ -2,7 +2,7 @@
 
     <!-- Base application theme. -->
 
-    <style name="MyAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="MyAppTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowActionBar">false</item>
         <item name="android:colorPrimary">@color/red_primary</item>
         <item name="android:colorPrimaryDark">@color/red_dark_primary</item>

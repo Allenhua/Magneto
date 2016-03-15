@@ -36,10 +36,6 @@
             android:name=".view.BasicActivity"
             android:exported="false" />
 
-        <service
-            android:name=".net.NetService"
-            android:enabled="true"
-            android:exported="false"></service>
     </application>
 
 </manifest>

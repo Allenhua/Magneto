@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Magneto</string>
 
+    <string name="app_version">Version:1.3</string>
     <string name="about_activity">关于</string>
     <string name="title_activity_search_results">SearchResults</string>
     <string name="title_activity_file_detail">FileDetailActivity</string>
