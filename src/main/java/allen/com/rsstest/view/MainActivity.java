@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         hideFragments(transaction,manager);
+        //防止fragment重复create，消耗资源
         if (!fragments.get(position).isAdded()){
             transaction.add(R.id.main_frame,fragments.get(position)).commit();
         }else {transaction.show(fragments.get(position)).commit();}

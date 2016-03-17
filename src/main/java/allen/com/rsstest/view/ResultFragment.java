@@ -4,13 +4,17 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,15 +47,17 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";//keywords
     private static final String ARG_PARAM2 = "param2";//position
-    private static final int VERTICAL_ITEM_SPACE = 32;
 
     public static final String MAGNET_FILE = "magnet";
 
+    private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     private ProgressBar mProgress;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private int mParam2;
+
+    private static final int VERTICAL_ITEM_SPACE = 32;
 
     private CustomAdapter mAdapter;
     private List<MagnetFilePojo> itemList = new ArrayList<>();
@@ -86,11 +92,6 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
         }
     }
 
-    void initTestList(){
-        for (int i = 0; i <15 ; i++) {
-            itemList.add(new MagnetFilePojo(i+"",i+1+"",i+2+"",i+3+""));
-        }
-    }
 
 
     @Override
@@ -99,14 +100,19 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_result,container,false);
 
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_layout);
         mProgress = (ProgressBar) rootView.findViewById(R.id.mprogress_bar);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
         final LinearLayoutManager lmanager = new LinearLayoutManager(getActivity());
 
-
-
+        swipeRefreshLayout.setProgressBackgroundColorSchemeColor(Color.WHITE);
+        swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_light
+                ,android.R.color.holo_green_light,android.R.color.holo_red_light,android.R.color.holo_orange_light);
+        swipeRefreshLayout.setProgressViewOffset(false, 0,
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
+        recyclerView.addItemDecoration(new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE));
         recyclerView.setLayoutManager(lmanager);
-        //initTestList();//测试
+
         mAdapter = new CustomAdapter();
         recyclerView.setAdapter(mAdapter);
 
@@ -116,9 +122,14 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
         HtmlParseFactory.excuteConnect(this,htmlParser.getUrl(mParam1,page));
 
 
-        recyclerView.addItemDecoration(new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE));
-
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                HtmlParseFactory.excuteConnect(ResultFragment.this,htmlParser.getUrl(mParam1,1));
+            }
+        });
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             int lastVisibleItem;
@@ -209,11 +220,31 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
             }
             return;
         }
+
+        if (swipeRefreshLayout.isRefreshing()){
+            setSwipeRefresh(list);
+            return;
+        }
         itemList.addAll(list);
         mAdapter.setData(itemList);
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                mAdapter.notifyDataSetChanged();
+                mProgress.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    private void setSwipeRefresh(ArrayList list){
+        itemList.clear();
+        itemList.addAll(list);
+        mAdapter.setData(itemList);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(false);
                 mAdapter.notifyDataSetChanged();
                 mProgress.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
@@ -229,6 +260,7 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                swipeRefreshLayout.setRefreshing(false);
                 mProgress.setVisibility(View.GONE);
                 Toast.makeText(getActivity(),"网络连接失败",Toast.LENGTH_SHORT).show();
             }
@@ -249,7 +281,8 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getContext(),"磁力链已复制到剪贴板",Toast.LENGTH_SHORT).show();
+                    Snackbar.make(recyclerView,"磁力链已复制到剪贴板",Snackbar.LENGTH_SHORT).show();
+                    //Toast.makeText(getContext(),"磁力链已复制到剪贴板",Toast.LENGTH_SHORT).show();
                 }
             });
             return;
