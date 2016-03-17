@@ -2,7 +2,6 @@
 一个用来查找磁力链的Android APP
 #TODO  
 加入BasicActivity  
-下拉刷新  
 加入5.0动画  
 滑动返回  
 宜搜小说  
