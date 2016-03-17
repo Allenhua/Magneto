@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -46,7 +47,6 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d("intent","success");
-
         initFragments();
         initView();
         if (savedInstanceState == null){

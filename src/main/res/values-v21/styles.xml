@@ -3,10 +3,12 @@
     <!-- Base application theme. -->
 
     <style name="MyAppTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <item name="android:fitsSystemWindows">true</item>
         <item name="android:windowActionBar">false</item>
         <item name="android:colorPrimary">@color/red_primary</item>
         <item name="android:colorPrimaryDark">@color/red_dark_primary</item>
         <item name="android:colorAccent">@color/red_acent_primary</item>
         <item name="android:listDivider">@drawable/divider</item>
+
     </style>
 </resources>

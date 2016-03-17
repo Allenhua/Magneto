@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" 
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:id="@+id/main_drawer">
     <LinearLayout
         android:orientation="vertical"
@@ -12,7 +13,8 @@
         <FrameLayout
             android:id="@+id/main_frame"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true">
 
 
         </FrameLayout>
@@ -25,6 +27,7 @@
         android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:fitsSystemWindows="true"
         app:headerLayout="@layout/menu_header_layout"
         app:menu="@menu/drawer_menu"
         >

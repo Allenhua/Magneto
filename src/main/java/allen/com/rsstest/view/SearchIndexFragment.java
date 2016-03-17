@@ -1,9 +1,11 @@
 package allen.com.rsstest.view;
 
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.transition.Explode;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -31,7 +33,6 @@ public class SearchIndexFragment extends Fragment implements View.OnClickListene
             fragment = new SearchIndexFragment();
         }
         Log.d("Fragment","new");
-
         return fragment;
     }
 
@@ -41,6 +42,7 @@ public class SearchIndexFragment extends Fragment implements View.OnClickListene
         View view = inflater.inflate(R.layout.sarch_index,container,false);
         text = (EditText) view.findViewById(R.id.search_text);
         image = (ImageButton) view.findViewById(R.id.search_button);
+        setAnimation();
         image.setOnClickListener(this);
         Log.d("Fragment","onCreateView");
         //监听回车键
@@ -58,12 +60,21 @@ public class SearchIndexFragment extends Fragment implements View.OnClickListene
         return view;
     }
 
+    private void setAnimation(){
+        int[] attrs = new int[]{R.attr.selectableItemBackground};
+        TypedArray typedArray = getContext().obtainStyledAttributes(attrs);
+        int backgroundResource = typedArray.getResourceId(0, 0);
+        image.setBackgroundResource(backgroundResource);
+        typedArray.recycle();
+    }
+
     @Override
     public void onClick(View v) {
         if (text.getText().toString().trim().equals("")){
             Toast.makeText(getContext(),"请输入关键词",Toast.LENGTH_SHORT).show();
             return;
         }
+
         Intent intent = new Intent(getActivity(),SearchResultTabActivity.class);
         intent.putExtra("key",text.getText().toString());
 

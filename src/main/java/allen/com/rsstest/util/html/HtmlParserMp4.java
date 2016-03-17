@@ -42,9 +42,9 @@ public class HtmlParserMp4 implements HtmlParser {
                 String mage = url.substring(url.indexOf("=")+1);
 
                 MagnetFilePojo magnet = new MagnetFilePojo();
-                magnet.setFileName(e.child(2).text());
+                magnet.setFileName(e.child(2).text().trim());
                 magnet.setFileUrl("http://mp4ba.com/"+url);
-                magnet.setFileSize(es.get(0).text()+"  "+es.get(3).text());
+                magnet.setFileSize(es.get(0).text().trim()+"  "+es.get(3).text());
                 magnet.setFileMagnet(NetUrls.MAGNET_TITLE+mage);
                 list.add(magnet);
             }
