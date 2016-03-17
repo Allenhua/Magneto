@@ -1,5 +1,10 @@
 # Magneto
-一个用来查找磁力链的Android APP
+一个用来查找磁力链的Android APP  
+#已完成  
+NavigationView  
+DrawerLayout  
+SwipeRefreshLayout  
+RecyclerView
 #TODO  
 加入BasicActivity  
 加入5.0动画  
