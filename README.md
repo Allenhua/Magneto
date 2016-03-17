@@ -1,6 +1,7 @@
 # Magneto
 一个用来查找磁力链的Android APP  
 #已完成  
+Toolbar
 NavigationView  
 DrawerLayout  
 SwipeRefreshLayout  
