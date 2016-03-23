@@ -5,10 +5,9 @@ Toolbar
 NavigationView  
 DrawerLayout  
 SwipeRefreshLayout  
-RecyclerView
+RecyclerView  
+加入5.0动画 
 #TODO  
-加入BasicActivity  
-加入5.0动画  
 滑动返回  
 宜搜小说  
 MP4吧详情页加入图片展示
