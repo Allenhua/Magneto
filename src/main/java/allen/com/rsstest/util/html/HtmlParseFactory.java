@@ -10,9 +10,9 @@ public class HtmlParseFactory {
 
     private static OkhttpUtil okhttpUtil = OkhttpUtil.getInstance();
 
-    public static void excuteConnect(HtmlSenderCallback htSender, String url){
+    /*public static void excuteConnect(HtmlSenderCallback htSender, String url){
         okhttpUtil.getResponse(htSender,url);
-    }
+    }*/
 
     public static HtmlParser getHtmlParser(int position){
         HtmlParser htmlParser = null;

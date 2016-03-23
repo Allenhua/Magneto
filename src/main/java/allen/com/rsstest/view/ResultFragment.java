@@ -5,6 +5,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -15,11 +16,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -30,6 +35,7 @@ import allen.com.rsstest.adapter.CustomAdapter;
 import allen.com.rsstest.model.HtmlSenderCallback;
 import allen.com.rsstest.model.RecyclerItemClickListner;
 import allen.com.rsstest.pojo.MagnetFilePojo;
+import allen.com.rsstest.util.OkhttpUtil;
 import allen.com.rsstest.util.html.HtmlParseFactory;
 import allen.com.rsstest.util.html.HtmlParser;
 
@@ -53,11 +59,14 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     private ProgressBar mProgress;
+    private PopupWindow popupWindow;
+    private TextView popButtonCopy;
+    private TextView popButtonLike;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private int mParam2;
+    BasicActivity activity;
 
-    private static final int VERTICAL_ITEM_SPACE = 32;
 
     private CustomAdapter mAdapter;
     private List<MagnetFilePojo> itemList = new ArrayList<>();
@@ -92,25 +101,23 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
         }
     }
 
-
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_result,container,false);
-
-        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_layout);
-        mProgress = (ProgressBar) rootView.findViewById(R.id.mprogress_bar);
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
-        final LinearLayoutManager lmanager = new LinearLayoutManager(getActivity());
-
+    private void setSwipeRefresh(){
         swipeRefreshLayout.setProgressBackgroundColorSchemeColor(Color.WHITE);
         swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_light
                 ,android.R.color.holo_green_light,android.R.color.holo_red_light,android.R.color.holo_orange_light);
         swipeRefreshLayout.setProgressViewOffset(false, 0,
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
-        recyclerView.addItemDecoration(new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE));
+    }
+
+    private void initView(View rootView){
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_layout);
+        setSwipeRefresh();
+
+        mProgress = (ProgressBar) rootView.findViewById(R.id.mprogress_bar);
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
+        final LinearLayoutManager lmanager = new LinearLayoutManager(activity);
+
+
         recyclerView.setLayoutManager(lmanager);
 
         mAdapter = new CustomAdapter();
@@ -119,7 +126,7 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
         mAdapter.setOnclickListner(this);
 
         htmlParser = HtmlParseFactory.getHtmlParser(mParam2);
-        HtmlParseFactory.excuteConnect(this,htmlParser.getUrl(mParam1,page));
+        activity.basicOkhttp.excuteConnect(this,htmlParser.getUrl(mParam1,page),activity);
 
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -127,7 +134,7 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                HtmlParseFactory.excuteConnect(ResultFragment.this,htmlParser.getUrl(mParam1,1));
+                activity.basicOkhttp.excuteConnect(ResultFragment.this,htmlParser.getUrl(mParam1,1),activity);
             }
         });
 
@@ -145,11 +152,19 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
                 if (newState == RecyclerView.SCROLL_STATE_IDLE && (lastVisibleItem +1 == mAdapter.getItemCount())){
                     page++;
                     Log.d("Page",page+"");
-                    HtmlParseFactory.excuteConnect(ResultFragment.this,htmlParser.getUrl(mParam1,page));
+                    activity.basicOkhttp.excuteConnect(ResultFragment.this,htmlParser.getUrl(mParam1,page),activity);
                 }
             }
         });
 
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View rootView = inflater.inflate(R.layout.fragment_result,container,false);
+        initView(rootView);
         setProgress();
         return rootView;
     }
@@ -183,12 +198,16 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+        if (context instanceof BasicActivity){
+            activity = (BasicActivity)context;
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        activity.cancelThis(activity);
     }
 
     @Override
@@ -198,12 +217,12 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
 
         list = htmlParser.parseSource(html);
         Log.d("itemList",list.size()+"");
-        if (getActivity() == null) {
+        if (activity == null) {
             return;
         }
         if (list.size() == 0 ) {
 
-            getActivity().runOnUiThread(new Runnable() {
+            activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Toast.makeText(getContext(),"无更多数据",Toast.LENGTH_SHORT).show();
@@ -211,7 +230,7 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
             });
 
             if (itemList.size() == 0){
-                getActivity().runOnUiThread(new Runnable() {
+                activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         mProgress.setVisibility(View.GONE);
@@ -227,7 +246,7 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
         }
         itemList.addAll(list);
         mAdapter.setData(itemList);
-        getActivity().runOnUiThread(new Runnable() {
+        activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAdapter.notifyDataSetChanged();
@@ -241,7 +260,7 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
         itemList.clear();
         itemList.addAll(list);
         mAdapter.setData(itemList);
-        getActivity().runOnUiThread(new Runnable() {
+        activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 swipeRefreshLayout.setRefreshing(false);
@@ -254,44 +273,35 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
 
     @Override
     public void OnFailed() {
-        if (getActivity() == null) {
+        if (activity == null) {
             return;
         }
-        getActivity().runOnUiThread(new Runnable() {
+        activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 swipeRefreshLayout.setRefreshing(false);
                 mProgress.setVisibility(View.GONE);
-                Toast.makeText(getActivity(),"网络连接失败",Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity,"网络连接失败",Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     @Override
     public void onClickItem(View view, int position) {
-        if (getActivity() == null) {
+        if (activity == null) {
             return;
         }
+        final MagnetFilePojo magnet = itemList.get(position);
         if (view instanceof ImageButton){
-            String magnetUrl = itemList.get(position).getFileMagnet();
-            ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clipData = ClipData.newPlainText("magnetUrl",magnetUrl);
-            clipboardManager.setPrimaryClip(clipData);
 
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Snackbar.make(recyclerView,"磁力链已复制到剪贴板",Snackbar.LENGTH_SHORT).show();
-                    //Toast.makeText(getContext(),"磁力链已复制到剪贴板",Toast.LENGTH_SHORT).show();
-                }
-            });
+            initPopupWindow(magnet);
+            showPopupWindow(recyclerView,0,0,0);
             return;
         }
 
         Log.d("ArrayList position",position+"");
-        final MagnetFilePojo magnet = itemList.get(position);
 
-        getActivity().runOnUiThread(new Runnable() {
+        activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Intent intent = new Intent(getContext(),FileDetailActivity.class);
@@ -303,7 +313,57 @@ public class ResultFragment extends Fragment implements HtmlSenderCallback,Recyc
 
     }
 
+    private void initPopupWindow(final MagnetFilePojo magnet){
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View popView = inflater.inflate(R.layout.pupup_layout,null);
+        popButtonCopy = (TextView) popView.findViewById(R.id.copy_magnet);
+        popButtonLike = (TextView) popView.findViewById(R.id.like_magnet);
 
+        popButtonCopy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clipData = ClipData.newPlainText("magnetUrl",magnet.getFileMagnet());
+                clipboardManager.setPrimaryClip(clipData);
+                ResultFragment.this.activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        popupWindow.dismiss();
+                        Toast.makeText(activity,"磁力链已复制到剪贴板", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+
+        popButtonLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        popupWindow =  new PopupWindow(popView,ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        WindowManager.LayoutParams params = activity.getWindow().getAttributes();
+        params.alpha = 0.6f;
+        activity.getWindow().setAttributes(params);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(0));
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                WindowManager.LayoutParams params = activity.getWindow().getAttributes();
+                params.alpha = 1.0f;//不透明
+                activity.getWindow().setAttributes(params);
+            }
+        });
+    }
+
+    private void showPopupWindow(View parent,int x,int y,int pos){
+        popupWindow.showAtLocation(parent, Gravity.BOTTOM,0,0);
+        popupWindow.setFocusable(true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.update();
+    }
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

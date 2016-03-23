@@ -13,6 +13,7 @@
         android:theme="@style/MyAppTheme">
         <activity
             android:name=".view.MainActivity"
+            android:launchMode="singleTask"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,7 +36,7 @@
         <activity
             android:name=".view.BasicActivity"
             android:exported="false" />
-
+        <activity android:name=".view.StarActivity"></activity>
     </application>
 
 </manifest>

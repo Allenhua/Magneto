@@ -8,21 +8,22 @@ import android.view.View;
 
 import allen.com.rsstest.R;
 
-public class AboutActivity extends AppCompatActivity {
+public class AboutActivity extends BasicActivity {
+
+    //Toolbar toolbar;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void initVars() {
+        super.initVars();
+    }
+
+    @Override
+    protected void initViews() {
+        super.initViews();
         setContentView(R.layout.activity_about);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setHomeButtonEnabled(true);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
-        toolbar.setTitleTextColor(Color.WHITE);
         getSupportActionBar().setTitle(R.string.about_activity);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -31,4 +32,8 @@ public class AboutActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void loadDatas() {
+        super.loadDatas();
+    }
 }

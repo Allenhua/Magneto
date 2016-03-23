@@ -17,52 +17,52 @@ import allen.com.rsstest.R;
 import allen.com.rsstest.adapter.FileDeatailAdapter;
 import allen.com.rsstest.model.HtmlSenderCallback;
 import allen.com.rsstest.pojo.FileDetailPojo;
+import allen.com.rsstest.util.OkhttpUtil;
 import allen.com.rsstest.util.html.HtmlParseFactory;
 import allen.com.rsstest.util.html.HtmlParser;
 
-public class FileDetailActivity extends AppCompatActivity implements HtmlSenderCallback{
+public class FileDetailActivity extends BasicActivity implements HtmlSenderCallback{
 
     private RecyclerView recyclerView;
     private FileDeatailAdapter mAdapter;
     private int sourceId;//搜索源
     private ArrayList<FileDetailPojo> mlist = new ArrayList<>();
+    private String[] magnetFile;
     private HtmlParser htmlParser;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_file_detail);
-
+    protected void initVars() {
+        super.initVars();
         Intent intent = getIntent();
-        String[] magnetFile = intent.getStringArrayExtra(ResultFragment.MAGNET_FILE);
-        String filename = magnetFile[0];
-        String fileurl = magnetFile[1];
+        magnetFile = intent.getStringArrayExtra(ResultFragment.MAGNET_FILE);
         sourceId = Integer.parseInt(magnetFile[2]);
+    }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+    @Override
+    protected void initViews() {
+        super.initViews();
+        setContentView(R.layout.activity_file_detail);
+        recyclerView = (RecyclerView) findViewById(R.id.detail_recycler);
+        mAdapter = new FileDeatailAdapter();
 
-        toolbar.setTitleTextColor(Color.WHITE);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setTitle(filename);
+    }
+
+    @Override
+    protected void loadDatas() {
+        super.loadDatas();
+        getSupportActionBar().setTitle(magnetFile[0]);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
             }
         });
-
-        recyclerView = (RecyclerView) findViewById(R.id.detail_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        mAdapter = new FileDeatailAdapter();
-
         recyclerView.setAdapter(mAdapter);
 
         htmlParser = HtmlParseFactory.getHtmlParser(sourceId);
-        HtmlParseFactory.excuteConnect(this,fileurl);
-
+        basicOkhttp.excuteConnect(this,magnetFile[1],this);
     }
 
     @Override
@@ -92,5 +92,11 @@ public class FileDetailActivity extends AppCompatActivity implements HtmlSenderC
                 Toast.makeText(getApplicationContext(),"网络连接失败",Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        cancelThis(this);
     }
 }

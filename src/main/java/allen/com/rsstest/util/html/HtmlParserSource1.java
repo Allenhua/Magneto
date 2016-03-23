@@ -25,12 +25,10 @@ public class HtmlParserSource1 implements HtmlParser {
     public ArrayList parseSource(String html) {
         ArrayList<MagnetFilePojo> list = new ArrayList<>();
         Document document = Jsoup.parse(html);
-        //Log.d("document",document.body().html());
         Elements elements = document.getElementsByClass("search-item");
         if (elements == null){
             return list;
         }
-        //Log.d("Document",elements.html());
         for (int i = 0; i < elements.size(); i++) {
             Elements es = elements.get(i).children();
             // Log.d("ElementsFor",es.html());

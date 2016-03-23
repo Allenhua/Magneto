@@ -39,9 +39,8 @@ public class OkhttpUtil {
     }
 
 
-    public void getResponse(final HtmlSenderCallback sender, String url){
-        Log.d("URL",url);
-        Request request = new Request.Builder().url(url).build();
+    public void excuteConnect(final HtmlSenderCallback sender, String url ,Object tag){
+        Request request = new Request.Builder().tag(tag).url(url).build();
 
         mClient.newCall(request).enqueue(new Callback() {
             @Override
@@ -57,7 +56,6 @@ public class OkhttpUtil {
                 String html = "";
                 if (response.isSuccessful()){
                     html = response.body().string();
-                    Log.d("html",html);
                     sender.onSuccess(html);
                 }
                 response.body().close();
@@ -65,5 +63,30 @@ public class OkhttpUtil {
         });
     }
 
+    public void cancelAll(){
+        if (mClient == null)
+            return;
+        mClient.dispatcher().cancelAll();
+    }
 
+    //取消正在执行的任务或者正在排队的任务
+    public boolean cancelCall(Object tag){
+        if (tag == null)
+            return true;
+
+        if (mClient == null) return true;
+
+        synchronized (mClient.dispatcher().getClass()){
+
+
+            for (Call call: mClient.dispatcher().queuedCalls()) {
+                if (tag.equals(call.request().tag())) call.cancel();
+            }
+
+            for (Call call: mClient.dispatcher().runningCalls()){
+                if (tag.equals(call.request().tag())) call.cancel();
+            }
+        }
+        return true;
+    }
 }

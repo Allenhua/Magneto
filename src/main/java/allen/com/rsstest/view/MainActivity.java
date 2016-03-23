@@ -22,8 +22,9 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import allen.com.rsstest.R;
+import allen.com.rsstest.util.OkhttpUtil;
 
-public class MainActivity extends AppCompatActivity implements ResultFragment.OnFragmentInteractionListener{
+public class MainActivity extends BasicActivity implements ResultFragment.OnFragmentInteractionListener{
 
     private NavigationView navigView;
     private String[] itemString = new String[]{"磁力搜索","电影更新","收藏列表"};
@@ -31,9 +32,7 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
 
     private ActionBarDrawerToggle mToggle;
     private DrawerLayout mDrawer;
-    private Toolbar toolbar;
     private long mLastTime = 0;
-
 
 
     @Override
@@ -41,19 +40,64 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
         //super.onSaveInstanceState(outState);
     }
 
+    @Override
+    protected void initVars() {
+        super.initVars();
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void initViews() {
+        super.initViews();
         setContentView(R.layout.activity_main);
-        Log.d("intent","success");
+        getSupportActionBar().setTitle("磁力搜索");
+
+        navigView = (NavigationView) findViewById(R.id.menu_view);
+        mDrawer = (DrawerLayout) findViewById(R.id.main_drawer);
+        mToggle = new ActionBarDrawerToggle(this,mDrawer,toolbar,R.string.draw_open,R.string.draw_close) {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+        };
+
+    }
+
+    @Override
+    protected void loadDatas() {
+        super.loadDatas();
         initFragments();
-        initView();
-        if (savedInstanceState == null){
+        navigView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.magnet_search:
+                        changeFragments(0,item);
+                        break;
+                    case R.id.movie_update:
+                        changeFragments(1,item);
+                        break;
+                    case R.id.favorite_list:
+                        Intent intent = new Intent(MainActivity.this,StarActivity.class);
+                        startActivity(intent);
+                        mDrawer.closeDrawer(navigView);
+                        break;
+                    default:
+                        return false;
+                }
+                return true;
+            }
+        });
+        mToggle.syncState();
+        mDrawer.addDrawerListener(mToggle);
+        if (this.savedInstanceState == null){
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.add(R.id.main_frame,fragments.get(0)).commit();
         }
-
     }
 
 
@@ -70,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
 
     }
 
-    private void changeFragments(int position){
+    private void changeFragments(int position,MenuItem item){
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         hideFragments(transaction,manager);
@@ -82,53 +126,10 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
 
         getSupportActionBar().setTitle(itemString[position]);
         mDrawer.closeDrawer(navigView);
+        item.setChecked(true);
     }
 
-    private void initView(){
-        toolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        toolbar.setTitleTextColor(Color.WHITE);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
-        getSupportActionBar().setTitle("磁力搜索");
-        getSupportActionBar().setHomeButtonEnabled(true);
 
-        navigView = (NavigationView) findViewById(R.id.menu_view);
-        mDrawer = (DrawerLayout) findViewById(R.id.main_drawer);
-
-        navigView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(MenuItem item) {
-                switch (item.getItemId()){
-                    case R.id.magnet_search:
-                        changeFragments(0);
-                        break;
-                    case R.id.movie_update:
-                        changeFragments(1);
-                        break;
-                    case R.id.favorite_list:
-                        break;
-                    default:
-                        return false;
-                }
-                item.setChecked(true);
-                return true;
-            }
-        });
-
-        mToggle = new ActionBarDrawerToggle(this,mDrawer,toolbar,R.string.draw_open,R.string.draw_close) {
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-            }
-        };
-        mToggle.syncState();
-        mDrawer.addDrawerListener(mToggle);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -175,5 +176,16 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
     public void onFragmentInteraction(Uri uri) {
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        clearOkhttp();
+        finishAffinity();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }
 

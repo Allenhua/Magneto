@@ -22,6 +22,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ListItemVi
     List<MagnetFilePojo> mList = new ArrayList<>();
     private RecyclerItemClickListner mClicks;
 
+
     public void setData(List<MagnetFilePojo> list) {
         mList = list;
     }
@@ -69,6 +70,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ListItemVi
 
         @Override
         public void onClick(View v) {
+
                 mClick.onClickItem(v,getAdapterPosition());
         }
     }

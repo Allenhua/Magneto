@@ -12,10 +12,10 @@ import java.util.regex.Pattern;
  */
 public class MagnetFilePojo {
 
-    private String fileName = null;
-    private String fileSize = null;
-    private String fileMagnet = null;
-    private String fileUrl = null;
+    private String fileName ;
+    private String fileSize ;
+    private String fileMagnet ;
+    private String fileUrl ;
 
     public MagnetFilePojo() {
     }

@@ -61,9 +61,7 @@ public class HtmlParserSource2 implements HtmlParser {
         for (int i = 1; i < elements.size(); i++) {
             Element e = elements.get(i);
             Element last = e.select("small").first();
-            Log.d("e",e.html());
             FileDetailPojo file = new FileDetailPojo(last.text(),e.text().replace(last.text(),""));
-            Log.d("file",file.toString());
             list.add(file);
         }
         return list;

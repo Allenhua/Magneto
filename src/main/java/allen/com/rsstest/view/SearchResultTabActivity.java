@@ -13,36 +13,38 @@ import android.view.View;
 
 import allen.com.rsstest.R;
 import allen.com.rsstest.adapter.SimpleFragmentPagerAdapter;
+import allen.com.rsstest.util.OkhttpUtil;
 
-public class SearchResultTabActivity extends AppCompatActivity implements ResultFragment.OnFragmentInteractionListener {
+public class SearchResultTabActivity extends BasicActivity implements ResultFragment.OnFragmentInteractionListener {
 
     private SimpleFragmentPagerAdapter sAdapter;
     private ViewPager vPager;
-    private ResultFragment rFragment;
     private String keywords;
     private TabLayout tabLayout;
 
-    private Toolbar toolbar;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search_result_tab);
-
+    protected void initVars() {
+        super.initVars();
         Intent intent = getIntent();
         keywords = intent.getStringExtra("key");
-        Log.d("keywords",keywords);
-        toolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        toolbar.setTitleTextColor(Color.WHITE);
-        //toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+    }
 
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
+    @Override
+    protected void initViews() {
+        super.initViews();
+        setContentView(R.layout.activity_search_result_tab);
+        toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        vPager = (ViewPager) findViewById(R.id.pager);
+        tabLayout = (TabLayout) findViewById(R.id.sliding_layout);
+
+    }
+
+    @Override
+    protected void loadDatas() {
+        super.loadDatas();
 
         getSupportActionBar().setTitle(keywords);
-        getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -52,11 +54,9 @@ public class SearchResultTabActivity extends AppCompatActivity implements Result
 
         sAdapter = new SimpleFragmentPagerAdapter(getSupportFragmentManager(),keywords);
         Log.d("SearchResult","success");
-        vPager = (ViewPager) findViewById(R.id.pager);
         vPager.setAdapter(sAdapter);
         vPager.setOffscreenPageLimit(3);
         Log.d("SearchResult","success");
-        tabLayout = (TabLayout) findViewById(R.id.sliding_layout);
         tabLayout.setupWithViewPager(vPager);
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
     }

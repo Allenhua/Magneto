@@ -44,7 +44,6 @@ public class HtmlParserSource4 implements HtmlParser {
         for (int i = 1; i< elements.size(); i++){
 
             Element e = elements.get(i).select("a").first();
-            Log.d("e",elements.get(i).html());
 
             MagnetFilePojo magnet = new MagnetFilePojo();
             magnet.setFileName(e.child(0).text());
@@ -54,7 +53,6 @@ public class HtmlParserSource4 implements HtmlParser {
 
 
             magnet.setFileSize(e.child(1).text());
-            Log.d("magnet",magnet.toString());
             list.add(magnet);
         }
 

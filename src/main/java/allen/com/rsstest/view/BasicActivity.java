@@ -14,35 +14,48 @@ import allen.com.rsstest.util.OkhttpUtil;
 
 public class BasicActivity extends AppCompatActivity {
 
-    private static OkhttpUtil okhttpUtil;
-    private static List<Activity> activities;
-    private Toolbar toolbar;
+    protected OkhttpUtil basicOkhttp = OkhttpUtil.getInstance();
+    protected Toolbar toolbar;
+    protected Bundle savedInstanceState;
 
-    public OkhttpUtil getOkhttpUtil() {
-        if (okhttpUtil == null) {
-            okhttpUtil = OkhttpUtil.getInstance();
+
+    protected void clearOkhttp(){
+        if (basicOkhttp != null){
+            basicOkhttp.cancelAll();
         }
-        return okhttpUtil;
     }
 
-    /*public Toolbar getToolbar(){
-        return toolbar;
-    }*/
-
+    protected void cancelThis(Activity activity){
+        basicOkhttp.cancelCall(activity);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       // setContentView(R.layout.activity_basic);
+        this.savedInstanceState = savedInstanceState;
+        initViews();
+        initVars();
+        loadDatas();
     }
 
-    /*@Override
+
+    protected void initViews(){
+
+    }
+
+    protected void initVars(){
+
+    }
+
+    protected void loadDatas(){
+
+    }
+    @Override
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
         toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitleTextColor(Color.WHITE);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(true);
-    }*/
+    }
 }
